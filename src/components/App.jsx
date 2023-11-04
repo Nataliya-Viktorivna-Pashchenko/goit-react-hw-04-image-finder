@@ -1,153 +1,119 @@
-import { Component } from "react"
+import { useEffect, useState } from "react"
 import { Searchbar } from "./Searchbar/Searchbar"
-// import axios from 'axios';
 import { ImageGallery } from "./ImageGallery/ImageGallery";
 import { Button } from "./Button/Button";
 import { Modal } from "./Modal/Modal";
 import { Loader } from "./Loader/Loader";
 import  { getImg } from "./api";
-// const BASE_URL = `https://pixabay.com/api/`;
-// const API_KEY = '39494389-0cbffb7df999a91ec2d35df03';
 
-export class App extends Component {
+export const App =() => {
   
-  
-  state = {
-     page: 1,
-    query: '',
-    isLoading: false,
-    images: [],
-    error: null,
-    img: '',
-    isOpenModal: false,
-    total:'',
-    // modalData: null,
-    };
-    
-   componentDidUpdate(prevProps, prevState) {
-    if (
-      prevState.query !== this.state.query ||
-      prevState.page !== this.state.page
-    ) {
-      
-      this.DisplayImg();
-    }
-  }
-async fetchImg () {
-  //  const params = {
-  //   key: API_KEY,
-  //   q: query, 
-  //   image_type: 'photo',
-  //   orientation: 'horizontal',
-  //     safesearch: true,
-  //     page,
-  //     per_page: 12,
-      
-  // };
-
-    try {
-
-      this.setState({ isLoading: true });
-      const { page, query, images, total} = this.state;
-
-      const { data } = await getImg(query, page, total)
-      console.log(data);
-      const totalImgs = data.totalHits;
-
-      const imgArr = data.hits
-      this.setState({
-        images: [...images, ...imgArr],
-        total: totalImgs
-        })
-    }
-    
-    catch (error) {
-    this.setState({ error: error.message });
-    }
-
-     finally {
-      this.setState({
-        isLoading: false,
-      });
-    }
- };
-
+  const [page, setPage] = useState(1);
+  const [query, setQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [images, setImages] = useState([]);
+  const [error, setError] = useState(null);
+  const [img, setImg] = useState('');
+  const [isOpenModal, setIsOpenModal] = useState(false);
+  const [total, setTotal] = useState(null);
  
-  DisplayImg = () => {
-    const {  page, query } = this.state;
-    this.fetchImg(query, page);
+
+  useEffect(() => {
+    if (query) {
+       const  fetchImg = async () => {
+        try {
+          setIsLoading(true);
+          const { data } = await getImg(query, page, total)
+          const totalImgs = data.totalHits;
+          
+          const imgArr = data.hits
+          setImages([...images, ...imgArr]);
+          setTotal(totalImgs);
+        }
+        catch (error) {
+          setError(error.message);
+        }
+
+        finally {
+          setIsLoading(false);
+        }
+      };
+      fetchImg()
+    }
+  },
+     [query, page] );
+    
+
+   
   
-  }
 
-  HandleSearchbarSubmit = query => {
-    this.setState({ query, images: [], page: 1, isLoading: true });
+const HandleSearchbarSubmit = query => {
+  setQuery(query);
+  setImages([]);
+  setPage(1);
+  setIsLoading(true)
   };
 
 
-    openModal = () => {
-    this.setState({
-      isOpenModal: true,
-        // !this.state.isOpenModal,
-      // img: imgToModal,
-    });
+    const openModal = () => {
+      setIsOpenModal(true);
+    
+    }
+  
+
+const closeModal = () => {
+  setIsOpenModal(true);
+  setImg('');
+   
   };
 
-  closeModal = () => {
-    this.setState({
-      isOpenModal: false,
-      img: "",
-    });
+const setCurrentImg = urlLarge => {
+  setImg(urlLarge);
   };
 
-setCurrentImg = urlLarge => {
-    this.setState({ img: urlLarge });
-  };
-
-  clickLoadMore = () => {
-    this.setState(prevState => ({
-    page:prevState.page+1
-  }))
+const clickLoadMore = () => {
+    setPage(prevPage => prevPage + 1)
 }
-  render() {
+  
     return (
       <div>
        
-        {this.state.error !== null && (
+        {error !== null && (
           <p className="error-bage">
-            Oops, some error occured... Error message: {this.state.error}
+            Oops, some error occured... Error message: {error}
           </p>
         )}
 
-        <Searchbar HandleSearchbarSubmit= {this.HandleSearchbarSubmit}/>
+        <Searchbar HandleSearchbarSubmit= {HandleSearchbarSubmit}/>
       
-          {this.state.isLoading && <Loader/>}
+          {isLoading && <Loader/>}
         
 
-        {this.state.images.length > 0 && (
+        {images.length > 0 && (
           <ImageGallery
-            images={this.state.images}
-            onClick={this.openModal}
-            setCurrentImg={this.setCurrentImg}
+            images={images}
+            onClick={openModal}
+            setCurrentImg={setCurrentImg}
           />
         )}
          
         
-        {this.state.img && ( 
+        {img && ( 
           <Modal
-            img = {this.state.img}
-           closeModal={this.closeModal}
+            img = {img}
+           closeModal={closeModal}
           />
         )}
        
 
-        {this.state.images.length < this.state.total && !this.state.isLoading && (
-          <Button clickLoadMore = {this.clickLoadMore} />
+        {images.length <total && !isLoading && (
+          <Button clickLoadMore = {clickLoadMore} />
         )} 
 
       </div>
     );
   
-}
+
     
   
 };

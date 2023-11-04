@@ -1,32 +1,35 @@
-import { Component } from 'react';
+import { Component, useState } from 'react';
 import css from './Seachbar.module.css'
 import { Notify } from "notiflix";
 
-export class Searchbar extends Component {
-    state = {
-    query:"",
-  }
-   handleChange = event => {
-    this.setState({
-    query: event.target.value.toLowerCase(),
-    });
+export const Searchbar = ({HandleSearchbarSubmit}) => {
+  const [query, setQuery] = useState('');
+  //   state = {
+  //   query:"",
+  // }
+  const handleChange = event => {
+    setQuery(event.target.value.toLowerCase())
+    // this.setState({
+    // query: event.target.value.toLowerCase(),
+    // });
   };
 
-      handleSubmit = event => {
+     const handleSubmit = event => {
         event.preventDefault();
-        if (!this.state.query) {
+        if (!query) {
           Notify.info('Please enter your request.');
           return
        }
-        this.props.HandleSearchbarSubmit(this.state.query);
-    this.setState({query:''});
+       HandleSearchbarSubmit(query);
+       setQuery('')
+    // this.setState({query:''});
   };
 
   
-render(){
+
     return (
         <header className ={css.Searchbar}>
-  <form className = {css.SearchForm} onSubmit={this.handleSubmit}>
+  <form className = {css.SearchForm} onSubmit={handleSubmit}>
     <button type="submit" className={css.SearchFormButton}>
       <span className ={css.SearchFormButtonLabel}>Search</span>
     </button>
@@ -37,12 +40,12 @@ render(){
       autoComplete="off"
       autoFocus
             placeholder="Search images and photos"
-            value={this.state.query}
-            onChange={this.handleChange}
+            value={query}
+            onChange={handleChange}
 
     />
   </form>
 </header>
     )
-}
+
 }
