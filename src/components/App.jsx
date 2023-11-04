@@ -1,13 +1,13 @@
 import { Component } from "react"
 import { Searchbar } from "./Searchbar/Searchbar"
-import axios from 'axios';
+// import axios from 'axios';
 import { ImageGallery } from "./ImageGallery/ImageGallery";
 import { Button } from "./Button/Button";
 import { Modal } from "./Modal/Modal";
 import { Loader } from "./Loader/Loader";
-
-const BASE_URL = `https://pixabay.com/api/`;
-const API_KEY = '39494389-0cbffb7df999a91ec2d35df03';
+import  { getImg } from "./api";
+// const BASE_URL = `https://pixabay.com/api/`;
+// const API_KEY = '39494389-0cbffb7df999a91ec2d35df03';
 
 export class App extends Component {
   
@@ -33,25 +33,25 @@ export class App extends Component {
       this.DisplayImg();
     }
   }
-
-  async fetchImg (query, page) {
-   const params = {
-    key: API_KEY,
-    q: query, 
-    image_type: 'photo',
-    orientation: 'horizontal',
-      safesearch: true,
-      page,
-      per_page: 12,
+async fetchImg () {
+  //  const params = {
+  //   key: API_KEY,
+  //   q: query, 
+  //   image_type: 'photo',
+  //   orientation: 'horizontal',
+  //     safesearch: true,
+  //     page,
+  //     per_page: 12,
       
-  };
+  // };
 
     try {
 
       this.setState({ isLoading: true });
-      const { images } = this.state;
+      const { page, query, images, total} = this.state;
 
-      const { data } = await axios(BASE_URL, { params });
+      const { data } = await getImg(query, page, total)
+      console.log(data);
       const totalImgs = data.totalHits;
 
       const imgArr = data.hits
