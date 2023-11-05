@@ -23,11 +23,11 @@ export const App =() => {
        const  fetchImg = async () => {
         try {
           setIsLoading(true);
-          const { data } = await getImg(query, page, total)
+          const { data } = await getImg(query, page)
           const totalImgs = data.totalHits;
           
           const imgArr = data.hits
-          setImages([...images, ...imgArr]);
+          setImages(prevImg => [...prevImg, ...imgArr]);
           setTotal(totalImgs);
         }
         catch (error) {
@@ -62,7 +62,7 @@ const HandleSearchbarSubmit = query => {
   
 
 const closeModal = () => {
-  setIsOpenModal(true);
+  setIsOpenModal(!isOpenModal);
   setImg('');
    
   };
